@@ -2,7 +2,7 @@ require('dotenv').config();
 const express = require('express');
 const sslRedirect = require('express-sslify');
 const bodyParser = require('body-parser');
-const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY); // Gebruik de Stripe-sleutel vanuit de omgevingsvariabele
+const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY);
 const fs = require('fs');
 const path = require('path');
 const app = express();
@@ -51,7 +51,7 @@ app.post('/create-checkout-session', async (req, res) => {
 
     try {
         const session = await stripe.checkout.sessions.create({
-            payment_method_types: ['card'],
+            payment_method_types: ['card', 'ideal', 'bancontact', 'giropay'],
             line_items: lineItems.map(item => ({
                 price: item.price,
                 quantity: item.quantity,
