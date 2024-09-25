@@ -15,19 +15,14 @@
     <!-- Tekst bovenaan over de barbecue -->
     <section class="intro">
         <h2>Welkom bij de LOD LAVKI Winterbarbecue!</h2>
-        <p>
-            Geniet van een gezellige dag vol heerlijk eten en warme drankjes, samen met vrienden en familie. Kies uit
-            verschillende smakelijke menu's die zorgvuldig zijn samengesteld voor deze bijzondere wintereditie van onze
-            barbecue.
-        </p>
     </section>
     <!-- Modale popup voor waarschuwingen -->
-<div id="alert-modal" class="modal">
-    <div class="modal-content">
-        <span class="close-button">&times;</span>
-        <p id="alert-message">Je moet ten minste één menu-item selecteren.</p>
+    <div id="alert-modal" class="modal">
+        <div class="modal-content">
+            <span class="close-button">&times;</span>
+            <p id="alert-message">Je moet ten minste één menu-item selecteren.</p>
+        </div>
     </div>
-</div>
 
 
     <main>
@@ -39,79 +34,88 @@
             <label for="name">Je naam</label>
             <input type="text" id="name" name="name" placeholder="Voer je naam in" required>
 
-            <!-- BBQ Menu -->
+            <!-- BBQ Menu small -->
             <div class="menu-item">
-                <label for="bbq-menu">BBQ Menu</label>
-                <p>Een klassiek barbecue menu met sappige hamburgers, worstjes en gegrilde groenten.</p>
-                <input type="number" id="bbq-menu" name="bbq-menu" min="0" max="5" value="0">
+                <label for="bbq-menu-small">BBQ Menu Small</label>
+                <p>Een heerlijk barbecue menu met sappige <strong>kipbrochette en BBQ-worst</strong>, inclusief een smakelijke side dish.
+                    Perfect voor een kleine maar bevredigende maaltijd!</p>
+                <input type="number" id="bbq-menu-small" name="bbq-menu-small" min="0" max="5" value="0" inputmode="numeric"
+                    required>
+            </div>
+
+            <!-- BBQ Menu 1 -->
+            <div class="menu-item">
+                <label for="bbq-menu1">BBQ Menu 1</label>
+                <p>Geniet van een feestmaal met malse <strong>kipbrochette, ribbetjes en BBQ-worst</strong>. Inclusief heerlijke
+                    bijgerechten. Perfect voor de echte BBQ-liefhebber!</p>
+                <input type="number" id="bbq-menu1" name="bbq-menu1" min="0" max="5" value="0" inputmode="numeric"
+                    required>
+            </div>
+
+            <!-- BBQ Menu 2 -->
+            <div class="menu-item">
+                <label for="bbq-menu2">BBQ Menu 2</label>
+                <p>Proef de smaak van gegrilde <strong>souvlaki, sappige varkenskotelet en een rundsbrochette</strong>. Compleet met een
+                    heerlijke side dish. Voor een volledige BBQ-ervaring!</p>
+                <input type="number" id="bbq-menu2" name="bbq-menu2" min="0" max="5" value="0" inputmode="numeric"
+                    required>
             </div>
 
             <!-- Vega Menu -->
             <div class="menu-item">
                 <label for="vega-menu">Vega Menu</label>
-                <p>Een heerlijk vegetarisch menu met gegrilde tofu, groentespiesjes en verse salades.</p>
-                <input type="number" id="vega-menu" name="vega-menu" min="0" max="5" value="0">
+                <p>Een smaakvol vegetarisch menu met <strong>brochette, gevulde portobello en aardappel met
+                    kruidenboter</strong>. Inclusief een verrukkelijke side dish. Geniet van puur plantaardig plezier!</p>
+                <input type="number" id="vega-menu" name="vega-menu" min="0" max="5" value="0" inputmode="numeric"
+                    required>
             </div>
+        </form>
 
-            <!-- Vis Menu -->
-            <div class="menu-item">
-                <label for="vis-menu">Vis Menu</label>
-                <p>Geniet van gegrilde zalm, garnalenspiesjes en een frisse citroensalade.</p>
-                <input type="number" id="vis-menu" name="vis-menu" min="0" max="5" value="0">
-            </div>
 
-            <!-- Kip Menu -->
-            <div class="menu-item">
-                <label for="kip-menu">Kip Menu</label>
-                <p>Een smaakvol menu met gegrilde kip, kruidige drumsticks en knapperige bijgerechten.</p>
-                <input type="number" id="kip-menu" name="kip-menu" min="0" max="5" value="0">
-            </div>
+        <!-- Dropdown voor shift keuze -->
+        <label for="shift">Kies je shift:</label>
+        <select id="shift" name="shift">
+            <option value="shift1">Shift 1: 18:30 - 20:30</option>
+            <option value="shift2">Shift 2: 20:30 - ....</option>
+        </select>
 
-            <!-- Dropdown voor shift keuze -->
-            <label for="shift">Kies je shift:</label>
-            <select id="shift" name="shift">
-                <option value="shift1">Shift 1: 12:00 - 14:00</option>
-                <option value="shift2">Shift 2: 14:00 - 16:00</option>
-                <option value="shift3">Shift 3: 16:00 - 18:00</option>
-            </select>
-
-            <button type="button" id="checkout-button">Ga naar betalen</button>
+        <button type="button" id="checkout-button">Ga naar betalen</button>
         </form>
     </main>
 
     <!-- Stripe.js bibliotheek -->
     <script src="https://js.stripe.com/v3/"></script>
     <script>
-        const stripe = Stripe('pk_test_51Q2YysK7LyHlGaLs1KaOcD1Gk6A8b8l45LVF3q9URgskNKwgFHBEIPRKtMXGZEu0kFn9Iq0yWGcJ0Aatm5XCMsiK00SWythWSu');
+        const stripe = Stripe('pk_live_51Q2YysK7LyHlGaLskm9jgeFHZ8r7ZeCHxNzEvEO1553OeCAcXzAYQIXGvWgggcp6aZQCV61IgF5gJqwTJY4YK6d1009Gq55TcX');
 
         document.getElementById('checkout-button').addEventListener('click', function () {
             // Haal de hoeveelheden voor elk menu op
-            const bbqMenuQuantity = parseInt(document.getElementById('bbq-menu').value);
-            const vegaMenuQuantity = parseInt(document.getElementById('vega-menu').value);
-            const visMenuQuantity = parseInt(document.getElementById('vis-menu').value);
-            const kipMenuQuantity = parseInt(document.getElementById('kip-menu').value);
+            const bbqMenuSQuantity = parseInt(document.getElementById('bbq-menu-small').value);
+            const bbqmenu1Quantity = parseInt(document.getElementById('bbq-menu1').value);
+            const bbqmenu2Quantity = parseInt(document.getElementById('bbq-menu2').value);
+            const vegamenuQuantity = parseInt(document.getElementById('vega-menu').value);
             const shift = document.getElementById('shift').value;
 
             // Functie om de modale popup te tonen
-    function showModal(message) {
-        const modal = document.getElementById('alert-modal');
-        const messageElement = document.getElementById('alert-message');
-        messageElement.textContent = message;
-        modal.style.display = 'block';
-    }
-// Sluit de modale popup wanneer de gebruiker op de sluitknop klikt
-document.querySelector('.close-button').addEventListener('click', function () {
-        document.getElementById('alert-modal').style.display = 'none';
-    });
+            function showModal(message) {
+                const modal = document.getElementById('alert-modal');
+                const messageElement = document.getElementById('alert-message');
+                messageElement.textContent = message;
+                modal.style.display = 'block';
+            }
+            // Sluit de modale popup wanneer de gebruiker op de sluitknop klikt
+            document.querySelector('.close-button').addEventListener('click', function () {
+                document.getElementById('alert-modal').style.display = 'none';
+            });
 
             // Valideer of de hoeveelheden positief zijn
-            if (bbqMenuQuantity < 0 || vegaMenuQuantity < 0 || visMenuQuantity < 0 || kipMenuQuantity < 0) {
+            if (bbqMenuSQuantity < 0 || bbqmenu1Quantity < 0 || bbqmenu2Quantity < 0 || vegamenuQuantity < 0) {
                 showModal('Alle hoeveelheden moeten positief zijn.');
                 return; // Stop het proces als een negatieve waarde is ingevoerd
             }
 
             // Controleer of de gebruiker ten minste één menu-item heeft geselecteerd
-            if (bbqMenuQuantity === 0 && vegaMenuQuantity === 0 && visMenuQuantity === 0 && kipMenuQuantity === 0) {
+            if (bbqMenuSQuantity === 0 && bbqmenu1Quantity === 0 && bbqmenu2Quantity === 0 && vegamenuQuantity === 0) {
                 showModal('Je moet ten minste één menu-item selecteren.');
                 return; // Stop het proces als geen items zijn geselecteerd
             }
@@ -124,31 +128,31 @@ document.querySelector('.close-button').addEventListener('click', function () {
             // Bouw een lijst van line_items op basis van de hoeveelheden die groter zijn dan 0
             const lineItems = [];
 
-            if (bbqMenuQuantity > 0) {
+            if (bbqMenuSQuantity > 0) {
                 lineItems.push({
-                    price: 'price_1Q2aC5K7LyHlGaLs2Qu0sRES',  // BBQ Menu price ID
-                    quantity: bbqMenuQuantity
+                    price: 'price_1Q2ZFzK7LyHlGaLsD3K87TpM',  // BBQ Menu price ID
+                    quantity: bbqMenuSQuantity
                 });
             }
 
-            if (vegaMenuQuantity > 0) {
+            if (bbqmenu1Quantity > 0) {
                 lineItems.push({
-                    price: 'price_1Q2aCcK7LyHlGaLshGypEczy',  // Vega Menu price ID
-                    quantity: vegaMenuQuantity
+                    price: 'price_1Q2ZGkK7LyHlGaLsoKCo7BOC',  // Vega Menu price ID
+                    quantity: bbqmenu1Quantity
                 });
             }
 
-            if (visMenuQuantity > 0) {
+            if (bbqmenu2Quantity > 0) {
                 lineItems.push({
-                    price: 'price_1Q2aD8K7LyHlGaLse9obYnTR',  // Vis Menu price ID
-                    quantity: visMenuQuantity
+                    price: 'price_1Q2ZHTK7LyHlGaLsLr9d4wkG',  // Vis Menu price ID
+                    quantity: bbqmenu2Quantity
                 });
             }
 
-            if (kipMenuQuantity > 0) {
+            if (vegamenuQuantity > 0) {
                 lineItems.push({
-                    price: 'price_1Q2aE1K7LyHlGaLs9iyje2d8',  // Kip Menu price ID
-                    quantity: kipMenuQuantity
+                    price: 'price_1Q2ZI6K7LyHlGaLs30Dv0HgX',  // Kip Menu price ID
+                    quantity: vegamenuQuantity
                 });
             }
 
