@@ -101,11 +101,11 @@
                 const modal = document.getElementById('alert-modal');
                 const messageElement = document.getElementById('alert-message');
                 messageElement.textContent = message;
-                modal.style.display = 'block';
+                document.getElementById('alert-modal').classList.add('active');
             }
             // Sluit de modale popup wanneer de gebruiker op de sluitknop klikt
             document.querySelector('.close-button').addEventListener('click', function () {
-                document.getElementById('alert-modal').style.display = 'none';
+                document.getElementById('alert-modal').classList.remove('active');
             });
 
             // Valideer of de hoeveelheden positief zijn
