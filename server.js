@@ -1,7 +1,7 @@
 require('dotenv').config();
 const express = require('express');
 const bodyParser = require('body-parser');
-const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY);
+const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY); // Gebruik de Stripe-sleutel vanuit de omgevingsvariabele
 const fs = require('fs');
 const path = require('path');
 const app = express();
@@ -54,8 +54,8 @@ app.post('/create-checkout-session', async (req, res) => {
                 quantity: item.quantity,
             })),
             mode: 'payment',
-            success_url: `http://localhost:3000/success?session_id={CHECKOUT_SESSION_ID}`,
-            cancel_url: 'http://localhost:3000/index.html',
+            success_url: `${process.env.BASE_URL}/success?session_id={CHECKOUT_SESSION_ID}`, // Dynamische URL gebruiken
+            cancel_url: `${process.env.BASE_URL}/index.html`, // Dynamische URL gebruiken
             metadata: {
                 shift: shift,
                 userName: userName,  // Bewaar de naam als metadata
@@ -104,7 +104,8 @@ app.get('/success', async (req, res) => {
     }
 });
 
-// Start de server
-app.listen(3000, () => {
-    console.log('Server draait op http://localhost:3000');
+// Start de server, luister op de door Heroku toegewezen poort of 3000 lokaal
+const PORT = process.env.PORT || 3000;
+app.listen(PORT, () => {
+    console.log(`Server draait op poort ${PORT}`);
 });
