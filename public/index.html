@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LOD LAVKI Winterbarbecue</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap">
+
+</head>
+
+<body>
+
+    <!-- Tekst bovenaan over de barbecue -->
+    <section class="intro">
+        <h2>Welkom bij de LOD LAVKI Winterbarbecue!</h2>
+        <p>
+            Geniet van een gezellige dag vol heerlijk eten en warme drankjes, samen met vrienden en familie. Kies uit
+            verschillende smakelijke menu's die zorgvuldig zijn samengesteld voor deze bijzondere wintereditie van onze
+            barbecue.
+        </p>
+    </section>
+    <!-- Modale popup voor waarschuwingen -->
+<div id="alert-modal" class="modal">
+    <div class="modal-content">
+        <span class="close-button">&times;</span>
+        <p id="alert-message">Je moet ten minste één menu-item selecteren.</p>
+    </div>
+</div>
+
+
+    <main>
+
+        <h2>Kies je menu's en aantallen</h2>
+
+        <form id="checkout-form">
+            <!-- Naam gebruiker -->
+            <label for="name">Je naam</label>
+            <input type="text" id="name" name="name" placeholder="Voer je naam in" required>
+
+            <!-- BBQ Menu -->
+            <div class="menu-item">
+                <label for="bbq-menu">BBQ Menu</label>
+                <p>Een klassiek barbecue menu met sappige hamburgers, worstjes en gegrilde groenten.</p>
+                <input type="number" id="bbq-menu" name="bbq-menu" min="0" max="5" value="0">
+            </div>
+
+            <!-- Vega Menu -->
+            <div class="menu-item">
+                <label for="vega-menu">Vega Menu</label>
+                <p>Een heerlijk vegetarisch menu met gegrilde tofu, groentespiesjes en verse salades.</p>
+                <input type="number" id="vega-menu" name="vega-menu" min="0" max="5" value="0">
+            </div>
+
+            <!-- Vis Menu -->
+            <div class="menu-item">
+                <label for="vis-menu">Vis Menu</label>
+                <p>Geniet van gegrilde zalm, garnalenspiesjes en een frisse citroensalade.</p>
+                <input type="number" id="vis-menu" name="vis-menu" min="0" max="5" value="0">
+            </div>
+
+            <!-- Kip Menu -->
+            <div class="menu-item">
+                <label for="kip-menu">Kip Menu</label>
+                <p>Een smaakvol menu met gegrilde kip, kruidige drumsticks en knapperige bijgerechten.</p>
+                <input type="number" id="kip-menu" name="kip-menu" min="0" max="5" value="0">
+            </div>
+
+            <!-- Dropdown voor shift keuze -->
+            <label for="shift">Kies je shift:</label>
+            <select id="shift" name="shift">
+                <option value="shift1">Shift 1: 12:00 - 14:00</option>
+                <option value="shift2">Shift 2: 14:00 - 16:00</option>
+                <option value="shift3">Shift 3: 16:00 - 18:00</option>
+            </select>
+
+            <button type="button" id="checkout-button">Ga naar betalen</button>
+        </form>
+    </main>
+
+    <!-- Stripe.js bibliotheek -->
+    <script src="https://js.stripe.com/v3/"></script>
+    <script>
+        const stripe = Stripe('pk_test_51Q2YysK7LyHlGaLs1KaOcD1Gk6A8b8l45LVF3q9URgskNKwgFHBEIPRKtMXGZEu0kFn9Iq0yWGcJ0Aatm5XCMsiK00SWythWSu');
+
+        document.getElementById('checkout-button').addEventListener('click', function () {
+            // Haal de hoeveelheden voor elk menu op
+            const bbqMenuQuantity = parseInt(document.getElementById('bbq-menu').value);
+            const vegaMenuQuantity = parseInt(document.getElementById('vega-menu').value);
+            const visMenuQuantity = parseInt(document.getElementById('vis-menu').value);
+            const kipMenuQuantity = parseInt(document.getElementById('kip-menu').value);
+            const shift = document.getElementById('shift').value;
+
+            // Functie om de modale popup te tonen
+    function showModal(message) {
+        const modal = document.getElementById('alert-modal');
+        const messageElement = document.getElementById('alert-message');
+        messageElement.textContent = message;
+        modal.style.display = 'block';
+    }
+// Sluit de modale popup wanneer de gebruiker op de sluitknop klikt
+document.querySelector('.close-button').addEventListener('click', function () {
+        document.getElementById('alert-modal').style.display = 'none';
+    });
+
+            // Valideer of de hoeveelheden positief zijn
+            if (bbqMenuQuantity < 0 || vegaMenuQuantity < 0 || visMenuQuantity < 0 || kipMenuQuantity < 0) {
+                showModal('Alle hoeveelheden moeten positief zijn.');
+                return; // Stop het proces als een negatieve waarde is ingevoerd
+            }
+
+            // Controleer of de gebruiker ten minste één menu-item heeft geselecteerd
+            if (bbqMenuQuantity === 0 && vegaMenuQuantity === 0 && visMenuQuantity === 0 && kipMenuQuantity === 0) {
+                showModal('Je moet ten minste één menu-item selecteren.');
+                return; // Stop het proces als geen items zijn geselecteerd
+            }
+
+            if (document.getElementById('name').value === '') {
+                showModal('Je moet je naam invullen.');
+                return; // Stop het proces als geen naam is ingevuld
+            }
+
+            // Bouw een lijst van line_items op basis van de hoeveelheden die groter zijn dan 0
+            const lineItems = [];
+
+            if (bbqMenuQuantity > 0) {
+                lineItems.push({
+                    price: 'price_1Q2aC5K7LyHlGaLs2Qu0sRES',  // BBQ Menu price ID
+                    quantity: bbqMenuQuantity
+                });
+            }
+
+            if (vegaMenuQuantity > 0) {
+                lineItems.push({
+                    price: 'price_1Q2aCcK7LyHlGaLshGypEczy',  // Vega Menu price ID
+                    quantity: vegaMenuQuantity
+                });
+            }
+
+            if (visMenuQuantity > 0) {
+                lineItems.push({
+                    price: 'price_1Q2aD8K7LyHlGaLse9obYnTR',  // Vis Menu price ID
+                    quantity: visMenuQuantity
+                });
+            }
+
+            if (kipMenuQuantity > 0) {
+                lineItems.push({
+                    price: 'price_1Q2aE1K7LyHlGaLs9iyje2d8',  // Kip Menu price ID
+                    quantity: kipMenuQuantity
+                });
+            }
+
+            // Maak een Checkout-sessie aan via de backend
+            fetch('/create-checkout-session', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    lineItems: lineItems,
+                    shift: shift,
+                    userName: document.getElementById('name').value
+                }),
+            })
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Error: ' + response.statusText);
+                    }
+                    return response.json();
+                })
+                .then(session => {
+                    return stripe.redirectToCheckout({ sessionId: session.id });
+                })
+                .catch(error => {
+                    console.error('Error creating checkout session:', error);
+                });
+
+        });
+    </script>
+</body>
+
+</html>

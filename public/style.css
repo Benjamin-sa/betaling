@@ -1,0 +1,244 @@
+/* Reset CSS */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Roboto', sans-serif;
+    background-color: #abb8c3;
+    color: #333;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+    min-height: 100vh;
+    padding: 10px;
+}
+
+header {
+    text-align: center;
+    margin-bottom: 20px;
+}
+
+header img.logo {
+    width: 120px;
+    height: auto;
+    margin-bottom: 10px;
+}
+
+header h1 {
+    font-size: 2rem; /* Verkleinen voor betere weergave op smartphones */
+    font-weight: 700;
+    color: #1a2a56;
+}
+
+main {
+    background-color: white;
+    padding: 20px; /* Minder padding voor kleine schermen */
+    border-radius: 10px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    max-width: 100%; /* Zorg dat de breedte zich volledig aanpast */
+    text-align: center;
+}
+
+main h2 {
+    font-size: 1.5rem; /* Verkleinen voor kleine schermen */
+    color: #1a2a56;
+    margin-bottom: 20px;
+}
+
+/* Modale popup styling */
+.modal {
+    display: none; /* Verborgen standaard */
+    position: fixed;
+    z-index: 1000;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    overflow: auto;
+    background-color: rgba(0, 0, 0, 0.5); /* Semi-transparante achtergrond */
+}
+
+.modal-content {
+    background-color: #fff;
+    margin: 15% auto;
+    padding: 20px;
+    border-radius: 10px;
+    width: 80%;
+    max-width: 400px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    text-align: center;
+}
+
+.close-button {
+    color: #aaa;
+    float: right;
+    font-size: 28px;
+    font-weight: bold;
+    cursor: pointer;
+}
+
+.close-button:hover,
+.close-button:focus {
+    color: #000;
+    text-decoration: none;
+}
+
+.modal p {
+    font-size: 1.2rem;
+    color: #333;
+}
+
+
+/* Introductie tekst styling */
+.intro {
+    background-color: #1a2a56;
+    padding: 30px 15px; /* Verkleinen voor betere pasvorm op kleinere schermen */
+    margin: 20px 0;
+    text-align: center;
+    border-radius: 10px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.intro p {
+    font-size: 1.2rem; /* Iets kleinere lettergrootte voor betere weergave */
+    color: #fff;
+    line-height: 1.6;
+    letter-spacing: 0.5px;
+    max-width: 100%; /* Zorg ervoor dat de tekst niet te breed is */
+    margin: 0 auto;
+}
+
+.intro h2 {
+    font-size: 1.8rem; /* Verkleinen voor smartphones */
+    font-weight: bold;
+    color: #abb8c3;
+    margin-bottom: 20px;
+}
+
+/* Form styling */
+.menu-item {
+    margin-bottom: 20px;
+}
+
+.menu-item p {
+    font-size: 0.9rem;
+    color: #666;
+    margin-top: 5px;
+    margin-bottom: 10px;
+}
+
+/* Labels en invoervelden */
+label {
+    display: block;
+    margin-bottom: 8px;
+    font-weight: bold;
+    color: #1a2a56;
+}
+
+input[type="number"], select {
+    width: 100%;
+    padding: 12px; /* Grotere padding voor betere tikbaarheid */
+    margin-bottom: 20px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    background-color: #f0f0f0;
+    color: #333;
+    font-size: 16px; /* Grotere tekst voor betere leesbaarheid */
+}
+
+input[type="text"], select {
+    width: 100%;
+    padding: 12px;
+    margin-bottom: 20px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    background-color: #f0f0f0;
+    color: #333;
+    font-size: 16px;
+}
+
+/* Stijl voor de knop */
+button {
+    width: 100%;
+    padding: 16px; /* Grotere knoppen voor betere tikbaarheid */
+    background-color: #1a2a56;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    font-size: 18px; /* Grotere tekst op knoppen */
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+button:hover {
+    background-color: #abb8c3;
+    color: #1a2a56;
+}
+
+/* Flexbox voor labels en inputvelden */
+#checkout-form div {
+    display: flex;
+    flex-direction: column; /* Stacking voor betere weergave op kleine schermen */
+    align-items: flex-start;
+}
+
+#checkout-form label {
+    flex-basis: 100%;
+}
+
+#checkout-form input[type="number"] {
+    flex-basis: 100%;
+    text-align: left; /* Zorg voor betere uitlijning op smallere schermen */
+}
+
+/* Responsive media queries voor tablets en mobiel */
+@media (max-width: 768px) {
+    body {
+        padding: 15px;
+    }
+
+    h1 {
+        font-size: 1.5rem;
+    }
+
+    #checkout-form {
+        padding: 15px;
+    }
+
+    #checkout-form div {
+        flex-direction: column;
+    }
+
+    button {
+        font-size: 16px;
+        padding: 12px;
+    }
+}
+
+@media (max-width: 480px) {
+    body {
+        padding: 10px;
+    }
+
+    h1 {
+        font-size: 1.2rem;
+    }
+
+    main h2 {
+        font-size: 1.4rem; /* Iets kleinere tekst op smartphones */
+    }
+
+    input[type="number"], select {
+        padding: 10px;
+        font-size: 14px; /* Kleinere tekst op invoervelden voor kleinere schermen */
+    }
+
+    button {
+        font-size: 14px;
+        padding: 10px;
+    }
+}
