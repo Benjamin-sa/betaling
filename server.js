@@ -95,7 +95,7 @@ app.get('/success', async (req, res) => {
 
             console.log(`Shift: ${shift}, User: ${userName}, Email: ${customerEmail}`);
 
-            // mailgun.sendConfirmationEmail(customerEmail, userName, shift, order.items);
+            mailgun.sendConfirmationEmail(customerEmail, userName, shift, order.items);
             
             saveOrder(order);
 
