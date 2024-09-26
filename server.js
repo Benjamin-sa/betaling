@@ -19,7 +19,7 @@ const ordersFile = path.join(__dirname, 'orders.json');
 
 // Maak een Stripe Checkout-sessie aan
 app.post('/create-checkout-session', async (req, res) => {
-    const { lineItems, shift, userName } = req.body;
+    const { lineItems, shift, email, userName } = req.body;
 
     if (!lineItems || lineItems.length === 0) {
         return res.status(400).json({ error: 'Je moet minimaal één menu selecteren.' });
@@ -28,6 +28,10 @@ app.post('/create-checkout-session', async (req, res) => {
     if (!userName) {
         return res.status(400).json({ error: 'Gebruikersnaam is verplicht.' });
     }
+
+    if (!email || !validateEmail(email)) {
+        return res.status(400).json({ error: 'Een geldig e-mailadres is verplicht.' });
+      }
 
     try {
         const session = await stripe.checkout.sessions.create({
@@ -39,7 +43,8 @@ app.post('/create-checkout-session', async (req, res) => {
             mode: 'payment',
             success_url: `${process.env.BASE_URL}/success?session_id={CHECKOUT_SESSION_ID}`, // Dynamische URL gebruiken
             cancel_url: `${process.env.BASE_URL}/index.html`, // Dynamische URL gebruiken
-            metadata: {
+            customer_email: email,
+                metadata: {
                 shift: shift,
                 userName: userName,  // Bewaar de naam als metadata
             },
@@ -53,43 +58,45 @@ app.post('/create-checkout-session', async (req, res) => {
     }
 });
 
-// Route voor succesvol afgeronde bestelling
 app.get('/success', async (req, res) => {
-
     const sessionId = req.query.session_id;
 
     try {
-        // Haal de Stripe sessie op om de betaling te controleren
+        // Haal de Stripe sessie op
         const session = await stripe.checkout.sessions.retrieve(sessionId);
+
+        // Haal de werkelijke bestelde items op via de line_items van Stripe
+        const lineItems = await stripe.checkout.sessions.listLineItems(sessionId);
 
         // Als de betaling succesvol is
         if (session.payment_status === 'paid') {
             const order = {
                 name: session.metadata.userName,
                 shift: session.metadata.shift,
-                bbq_menu: session.metadata.bbq_menu || 0,
-                vega_menu: session.metadata.vega_menu || 0,
-                vis_menu: session.metadata.vis_menu || 0,
-                kip_menu: session.metadata.kip_menu || 0,
-                created_at: new Date().toISOString()
+                created_at: new Date().toISOString(),
+                items: lineItems.data.map(item => ({
+                    name: item.description,
+                    quantity: item.quantity
+                }))
             };
 
-            const orderDetails = [
-                { name: "BBQ Menu", quantity: order.bbq_menu },
-                { name: "Vega Menu", quantity: order.vega_menu },
-                { name: "Vis Menu", quantity: order.vis_menu },
-                { name: "Kip Menu", quantity: order.kip_menu }
-            ];
-            
+            // Voor de duidelijkheid: de bestelde items loggen
+            console.log('Bestelde items:', JSON.stringify(order.items, null, 2));
 
             const shift = session.metadata.shift;
             const userName = session.metadata.userName;
-            const customerEmail = session.customer_email;
 
-            // Verstuur de bevestigingsmail
-            mailgun.sendConfirmationEmail(customerEmail, userName, shift, orderDetails);
+            // Fetch customer email if not directly available in session
+            let customerEmail = session.customer_email;
+            if (!customerEmail && session.customer) {
+                const customer = await stripe.customers.retrieve(session.customer);
+                customerEmail = customer.email;
+            }
 
-            // Sla de bestelling op in het JSON-bestand
+            console.log(`Shift: ${shift}, User: ${userName}, Email: ${customerEmail}`);
+
+            mailgun.sendConfirmationEmail(customerEmail, userName, shift, order.items);
+            
             saveOrder(order);
 
             // Toon de success-pagina
@@ -98,16 +105,23 @@ app.get('/success', async (req, res) => {
             res.status(400).send('Betaling niet succesvol');
         }
     } catch (error) {
-        console.error('Error retrieving checkout session:', error);
+        console.error('Error retrieving checkout session or line items:', error);
         res.status(500).send('Er is iets misgegaan tijdens het verwerken van de betaling.');
     }
 });
+
 
 // Start de server, luister op de door Heroku toegewezen poort of 3000 lokaal
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
     console.log(`Server draait op poort ${PORT}`);
 });
+
+// // Functie om te controleren of het e-mailadres geldig is (zelfde regex als in de frontend)
+function validateEmail(email) {
+    const re = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+    return re.test(String(email).toLowerCase());
+  }
 
 
 // Functie om een bestelling op te slaan in het JSON-bestand

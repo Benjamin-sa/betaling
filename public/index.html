@@ -30,23 +30,29 @@
         <h2>Kies je menu's en aantallen</h2>
 
         <form id="checkout-form">
-            <!-- Naam gebruiker -->
+            <!-- Naam gebruiker en email -->
             <label for="name">Je naam</label>
             <input type="text" id="name" name="name" placeholder="Voer je naam in" required>
+
+            <label for="'email">Je e-mailadres</label>
+            <input type="email" id="email" name="email" placeholder="Vul je e-mailadres in" required
+                pattern="[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,}$" title="Vul een geldig e-mailadres in." />
 
             <!-- BBQ Menu small -->
             <div class="menu-item">
                 <label for="bbq-menu-small">BBQ Menu Small</label>
-                <p>Een heerlijk barbecue menu met sappige <strong>kipbrochette en BBQ-worst</strong>, inclusief een smakelijke side dish.
+                <p>Een heerlijk barbecue menu met sappige <strong>kipbrochette en BBQ-worst</strong>, inclusief een
+                    smakelijke side dish.
                     Perfect voor een kleine maar bevredigende maaltijd!</p>
-                <input type="number" id="bbq-menu-small" name="bbq-menu-small" min="0" max="5" value="0" inputmode="numeric"
-                    required>
+                <input type="number" id="bbq-menu-small" name="bbq-menu-small" min="0" max="5" value="0"
+                    inputmode="numeric" required>
             </div>
 
             <!-- BBQ Menu 1 -->
             <div class="menu-item">
                 <label for="bbq-menu1">BBQ Menu 1</label>
-                <p>Geniet van een feestmaal met malse <strong>kipbrochette, ribbetjes en BBQ-worst</strong>. Inclusief heerlijke
+                <p>Geniet van een feestmaal met malse <strong>kipbrochette, ribbetjes en BBQ-worst</strong>. Inclusief
+                    heerlijke
                     bijgerechten. Perfect voor de echte BBQ-liefhebber!</p>
                 <input type="number" id="bbq-menu1" name="bbq-menu1" min="0" max="5" value="0" inputmode="numeric"
                     required>
@@ -55,7 +61,8 @@
             <!-- BBQ Menu 2 -->
             <div class="menu-item">
                 <label for="bbq-menu2">BBQ Menu 2</label>
-                <p>Proef de smaak van gegrilde <strong>souvlaki, sappige varkenskotelet en een rundsbrochette</strong>. Compleet met een
+                <p>Proef de smaak van gegrilde <strong>souvlaki, sappige varkenskotelet en een rundsbrochette</strong>.
+                    Compleet met een
                     heerlijke side dish. Voor een volledige BBQ-ervaring!</p>
                 <input type="number" id="bbq-menu2" name="bbq-menu2" min="0" max="5" value="0" inputmode="numeric"
                     required>
@@ -65,7 +72,8 @@
             <div class="menu-item">
                 <label for="vega-menu">Vega Menu</label>
                 <p>Een smaakvol vegetarisch menu met <strong>brochette, gevulde portobello en aardappel met
-                    kruidenboter</strong>. Inclusief een verrukkelijke side dish. Geniet van puur plantaardig plezier!</p>
+                        kruidenboter</strong>. Inclusief een verrukkelijke side dish. Geniet van puur plantaardig
+                    plezier!</p>
                 <input type="number" id="vega-menu" name="vega-menu" min="0" max="5" value="0" inputmode="numeric"
                     required>
             </div>
@@ -94,7 +102,10 @@
             const bbqmenu1Quantity = parseInt(document.getElementById('bbq-menu1').value);
             const bbqmenu2Quantity = parseInt(document.getElementById('bbq-menu2').value);
             const vegamenuQuantity = parseInt(document.getElementById('vega-menu').value);
+            
             const shift = document.getElementById('shift').value;
+            const emailField = document.getElementById('email');  // Declareer de emailField hier
+
 
             // Functie om de modale popup te tonen
             function showModal(message) {
@@ -120,10 +131,17 @@
                 return; // Stop het proces als geen items zijn geselecteerd
             }
 
-            if (document.getElementById('name').value === '') {
-                showModal('Je moet je naam invullen.');
+            if (document.getElementById('name').value === '' || document.getElementById('email').value === '') {
+                showModal('Je moet je naam en email invullen.');
                 return; // Stop het proces als geen naam is ingevuld
             }
+
+            // Controleer of het e-mailadres correct is ingevoerd
+            if (!emailField.checkValidity()) {
+                showModal('Vul een geldig e-mailadres in.');
+                return; // Stop het proces als het e-mailadres niet correct is
+            }
+
 
             // Bouw een lijst van line_items op basis van de hoeveelheden die groter zijn dan 0
             const lineItems = [];
@@ -165,6 +183,7 @@
                 body: JSON.stringify({
                     lineItems: lineItems,
                     shift: shift,
+                    email: document.getElementById('email').value,
                     userName: document.getElementById('name').value
                 }),
             })

@@ -35,6 +35,28 @@
         display: inline-block;
         margin: 0 auto;
       }
+
+      /* Algemene styling voor de button */
+button {
+    background-color: #4CAF50; /* Groene achtergrondkleur */
+    border: none; /* Geen rand */
+    color: white; /* Witte tekstkleur */
+    padding: 15px 32px; /* Ruime padding */
+    padding-top: 15px; /* Extra padding bovenaan */
+    text-align: center; /* Tekst centreren */
+    text-decoration: none; /* Geen onderstreping */
+    display: inline-block; /* Inline-block weergave */
+    font-size: 16px; /* Grotere tekst */
+    margin: 4px 2px; /* Kleine marge */
+    cursor: pointer; /* Pointer cursor bij hover */
+    border-radius: 8px; /* Afgeronde hoeken */
+    transition: background-color 0.3s ease; /* Soepele overgang bij hover */
+}
+
+/* Hover effect voor de button */
+button:hover {
+    background-color: #45a049; /* Donkerdere groene kleur bij hover */
+}
     </style>
     <body>
       <div class="card">
@@ -43,6 +65,7 @@
       </div>
         <h1>Success</h1> 
         <p>We hebben je betalen goed ontvangen<br/> Tot op de barbecue!</p>
+        <button onclick="window.location.href = 'https://lodlavki.be';">Terug naar de website</button>
       </div>
     </body>
 </html>

@@ -23,39 +23,101 @@ function sendConfirmationEmail(email, userName, shift, orderDetails) {
     to: email,
     subject: "Bevestiging van uw bestelling",
     html: `
-      <div style="font-family: Arial, sans-serif; color: #ffffff; background-color: #001F3F; padding: 20px; display: flex; justify-content: center; align-items: center; flex-direction: column; text-align: center;">
-        <div style="max-width: 600px; margin: 0 auto;">
-          <!-- Groot logo gebruiken -->
-          <img src="https://www.lodlavki.be/wp-content/uploads/2024/01/lodlavki-website-2-1536x1005.jpg" alt="BBQ LOD LAVKI" style="width: 400px; margin-bottom: 20px;">
-          
-          <div style="background-color: #001F3F; padding: 20px; border-radius: 10px;">
-            <h2 style="color: #FF4136;">Beste ${userName},</h2>
-            <p style="color: #ffffff;">Bedankt voor je bestelling! Hier zijn de details van je bestelling:</p>
-            <table style="width: 100%; border-collapse: collapse; margin-bottom: 20px;">
-              <thead>
-                <tr style="background-color: #FF4136; color: #ffffff;">
-                  <th style="padding: 10px; border: 1px solid #ddd;">Menu's</th>
-                  <th style="padding: 10px; border: 1px solid #ddd;">Aantal</th>
-                </tr>
-              </thead>
-              <tbody>
-                ${orderDetails.map((item) => `
-                  <tr>
-                    <td style="padding: 10px; border: 1px solid #ddd; color: #ffffff;">${item.name}</td>
-                    <td style="padding: 10px; border: 1px solid #ddd; color: #ffffff;">${item.quantity}</td>
-                  </tr>
-                `).join("")}
-              </tbody>
-            </table>
-            <p style="color: #ffffff;">Je wordt verwacht in de volgende shift: <strong style="color: #FF4136;">${shift}</strong>.</p>
-            <p style="color: #ffffff;">We kijken ernaar uit je te zien!</p>
-          </div>
-        </div>
-        <div style="padding: 20px; text-align: center;">
-          <p style="color: #ffffff;">Met vriendelijke groet,<br>BBQ LOD LAVKI Team</p>
-          <p style="font-size: 12px; color: #999999;">Dit is een automatische e-mail. Gelieve niet te antwoorden.</p>
-        </div>
-      </div>
+      <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Bestelling Bevestiging</title>
+  <style type="text/css">
+    body {
+      font-family: Arial, sans-serif;
+      color: #ffffff;
+      background-color: #001F3F;
+      margin: 0;
+      padding: 20px;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-bottom: 20px;
+    }
+    th, td {
+      padding: 10px;
+      border: 1px solid #ddd;
+      color: #ffffff;
+    }
+    th {
+      background-color: #FF4136;
+    }
+    .email-container {
+      max-width: 600px;
+      margin: 0 auto;
+    }
+    .email-header img {
+      width: 400px;
+      margin-bottom: 20px;
+    }
+    .email-body {
+      background-color: #001F3F;
+      padding: 20px;
+      border-radius: 10px;
+    }
+    .email-footer {
+      padding: 20px;
+      text-align: center;
+      width: 100%;
+    }
+    .email-footer p {
+      color: #ffffff;
+    }
+    .email-footer small {
+      font-size: 12px;
+      color: #999999;
+    }
+  </style>
+</head>
+<body>
+  <table cellpadding="0" cellspacing="0" border="0" class="email-container">
+    <tr>
+      <td class="email-header" align="center">
+        <!-- Groot logo gebruiken -->
+        <img src="https://www.lodlavki.be/wp-content/uploads/2024/01/lodlavki-website-2-1536x1005.jpg" alt="BBQ LOD LAVKI">
+      </td>
+    </tr>
+    <tr>
+      <td class="email-body">
+        <h2 style="color: #FF4136;">Beste ${userName},</h2>
+        <p>Bedankt voor je bestelling! Hier zijn de details van je bestelling:</p>
+        <table cellpadding="0" cellspacing="0" border="0">
+          <thead>
+            <tr>
+              <th>Menu's</th>
+              <th>Aantal</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${orderDetails.map((item) => `
+              <tr>
+                <td>${item.name}</td>
+                <td>${item.quantity}</td>
+              </tr>
+            `).join("")}
+          </tbody>
+        </table>
+        <p>Je wordt verwacht in de volgende shift: <b>${shift}</b>.</p>
+        <p>We kijken ernaar uit je te zien!</p>
+      </td>
+    </tr>
+    <tr>
+      <td class="email-footer">
+        <p>Met vriendelijke groet,<br>BBQ LOD LAVKI Team</p>
+        <small>Dit is een automatische e-mail. Gelieve niet te antwoorden.</small>
+      </td>
+    </tr>
+  </table>
+</body>
+</html>
     `,
     attachment: [{
       filename: 'afspraak.ics',
