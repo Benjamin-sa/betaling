@@ -55,6 +55,7 @@ app.post('/create-checkout-session', async (req, res) => {
 
 // Route voor succesvol afgeronde bestelling
 app.get('/success', async (req, res) => {
+
     const sessionId = req.query.session_id;
 
     try {
@@ -72,6 +73,13 @@ app.get('/success', async (req, res) => {
                 kip_menu: session.metadata.kip_menu || 0,
                 created_at: new Date().toISOString()
             };
+
+            const orderDetails = [
+                { name: "BBQ Menu", quantity: order.bbq_menu },
+                { name: "Vega Menu", quantity: order.vega_menu },
+                { name: "Vis Menu", quantity: order.vis_menu },
+                { name: "Kip Menu", quantity: order.kip_menu }
+            ];
             
 
             const shift = session.metadata.shift;
