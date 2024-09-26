@@ -7,6 +7,8 @@ const fs = require('fs');
 const path = require('path');
 const app = express();
 
+const mailgun = require('./mailservice');
+
 app.use(sslRedirect.HTTPS({ trustProtoHeader: true }));
 
 app.use(bodyParser.json());
@@ -14,28 +16,6 @@ app.use(express.static('public'));
 
 // Pad naar het JSON-bestand waarin de bestellingen worden opgeslagen
 const ordersFile = path.join(__dirname, 'orders.json');
-
-// Functie om bestellingen in het JSON-bestand op te slaan
-function saveOrder(order) {
-    fs.readFile(ordersFile, (err, data) => {
-        let orders = [];
-        if (!err) {
-            orders = JSON.parse(data);
-        }
-
-        // Voeg de nieuwe bestelling toe aan de array
-        orders.push(order);
-
-        // Schrijf de bijgewerkte array terug naar het JSON-bestand
-        fs.writeFile(ordersFile, JSON.stringify(orders, null, 2), (err) => {
-            if (err) {
-                console.error('Error writing to orders file:', err);
-            } else {
-                console.log('Order saved successfully');
-            }
-        });
-    });
-}
 
 // Maak een Stripe Checkout-sessie aan
 app.post('/create-checkout-session', async (req, res) => {
@@ -92,6 +72,14 @@ app.get('/success', async (req, res) => {
                 kip_menu: session.metadata.kip_menu || 0,
                 created_at: new Date().toISOString()
             };
+            
+
+            const shift = session.metadata.shift;
+            const userName = session.metadata.userName;
+            const customerEmail = session.customer_email;
+
+            // Verstuur de bevestigingsmail
+            mailgun.sendConfirmationEmail(customerEmail, userName, shift, orderDetails);
 
             // Sla de bestelling op in het JSON-bestand
             saveOrder(order);
@@ -112,3 +100,26 @@ const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
     console.log(`Server draait op poort ${PORT}`);
 });
+
+
+// Functie om een bestelling op te slaan in het JSON-bestand
+function saveOrder(order) {
+    fs.readFile(ordersFile, (err, data) => {
+        let orders = [];
+        if (!err) {
+            orders = JSON.parse(data);
+        }
+
+        // Voeg de nieuwe bestelling toe aan de array
+        orders.push(order);
+
+        // Schrijf de bijgewerkte array terug naar het JSON-bestand
+        fs.writeFile(ordersFile, JSON.stringify(orders, null, 2), (err) => {
+            if (err) {
+                console.error('Error writing to orders file:', err);
+            } else {
+                console.log('Order saved successfully');
+            }
+        });
+    });
+}
