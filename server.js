@@ -2,7 +2,7 @@ require('dotenv').config();
 const express = require('express');
 const sslRedirect = require('express-sslify');
 const bodyParser = require('body-parser');
-const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY);
+const stripe = require('stripe')(process.env.STRIPE_TEST_SECRET_KEY);
 const fs = require('fs');
 const path = require('path');
 const app = express();
