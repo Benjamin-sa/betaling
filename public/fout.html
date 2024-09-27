@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{errorType}} - Oops! Er is een fout opgetreden</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            color: #333;
+            background-color: #f8f9fa;
+            text-align: center;
+            padding: 50px;
+        }
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            background: #fff;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+        h1 {
+            color: #dc3545;
+            font-size: 2em;
+        }
+        p {
+            font-size: 1.1em;
+            margin-bottom: 20px;
+        }
+        .support-link {
+            color: #007bff;
+            text-decoration: none;
+        }
+        .support-link:hover {
+            text-decoration: underline;
+        }
+        .cta-btn {
+            display: inline-block;
+            background-color: #007bff;
+            color: white;
+            padding: 10px 20px;
+            border-radius: 5px;
+            text-decoration: none;
+            margin-top: 20px;
+            font-size: 1.1em;
+        }
+        .cta-btn:hover {
+            background-color: #0056b3;
+        }
+        img {
+            width: 100px;
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>{{errorType}}</h1>
+        <p>{{message}}</p> <!-- Dynamisch bericht -->
+        <p>Onze technici zijn op de hoogte gebracht en werken aan een oplossing.</p>
+        <p>Als je binnen enkele minuten geen bevestiging ontvangt, neem dan contact op met ons supportteam via <a class="support-link" href="mailto:support@lodlavki.be">support@lodlavki.be</a>.</p>
+        <a href="/index.html" class="cta-btn">Terug naar de homepage</a>
+        <br/>
+        <img src="https://example.com/error-icon.png" alt="Error icon" />
+    </div>
+</body>
+</html>
