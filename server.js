@@ -9,6 +9,29 @@ const app = express();
 
 const mailgun = require('./mailservice');
 
+
+
+const admin = require('firebase-admin');
+
+admin.initializeApp({
+  credential: admin.credential.cert({
+    "type": "service_account",
+    "project_id": process.env.FIREBASE_PROJECT_ID,
+    "private_key_id": process.env.FIREBASE_PRIVATE_KEY_ID,
+    "private_key": process.env.FIREBASE_PRIVATE_KEY.replace(/\\n/g, '\n'), // Belangrijk: vervang \n door echte nieuwe regels
+    "client_email": process.env.FIREBASE_CLIENT_EMAIL,
+    "client_id": process.env.FIREBASE_CLIENT_ID,
+    "auth_uri": process.env.FIREBASE_AUTH_URI,
+    "token_uri": process.env.FIREBASE_TOKEN_URI,
+    "auth_provider_x509_cert_url": process.env.FIREBASE_AUTH_PROVIDER_CERT_URL,
+    "client_x509_cert_url": process.env.FIREBASE_CLIENT_CERT_URL
+  }),
+  databaseURL: "https://bbqlodlavki.firebaseio.com"
+});
+
+const db = admin.firestore();
+
+// Middleware om alle verzoeken om te leiden naar HTTPS
 app.use(sslRedirect.HTTPS({ trustProtoHeader: true }));
 
 app.use(bodyParser.json());
@@ -97,8 +120,14 @@ app.get('/success', async (req, res) => {
 
             mailgun.sendConfirmationEmail(customerEmail, userName, shift, order.items);
             
-            saveOrder(order);
-
+            // Voeg de bestelling toe aan de Firestore-database
+            db.collection('orders').add(data)
+            .then((docRef) => {
+              console.log("Document succesvol opgeslagen met ID: ", docRef.id);
+            })
+            .catch((error) => {
+              console.error("Error bij het opslaan van document: ", error);
+            });            
             // Toon de success-pagina
             res.sendFile(path.join(__dirname, 'public', 'success.html'));
         } else {
@@ -123,25 +152,3 @@ function validateEmail(email) {
     return re.test(String(email).toLowerCase());
   }
 
-
-// Functie om een bestelling op te slaan in het JSON-bestand
-function saveOrder(order) {
-    fs.readFile(ordersFile, (err, data) => {
-        let orders = [];
-        if (!err) {
-            orders = JSON.parse(data);
-        }
-
-        // Voeg de nieuwe bestelling toe aan de array
-        orders.push(order);
-
-        // Schrijf de bijgewerkte array terug naar het JSON-bestand
-        fs.writeFile(ordersFile, JSON.stringify(orders, null, 2), (err) => {
-            if (err) {
-                console.error('Error writing to orders file:', err);
-            } else {
-                console.log('Order saved successfully');
-            }
-        });
-    });
-}

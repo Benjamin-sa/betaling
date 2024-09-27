@@ -12,5 +12,3 @@ const email = "benkee.sauter@gmail.com";
 const userName = "John Doe";
 const shift = "shift1"; // Dit kan 'shift1' of 'shift2' zijn
 
-// Roep de functie aan om een e-mail met ICS-bestand te verzenden
-sendConfirmationEmail(email, userName, shift, orderDetails);
