@@ -234,6 +234,10 @@ button:hover {
         width: 50%;
     }
 
+    input[type="email"], select {
+        width: 50%;
+    }
+
     button {
         font-size: 20px;
         padding: 16px;
@@ -284,6 +288,10 @@ button:hover {
     }
 
     input[type="text"], select {
+        width: 100%;
+    }
+
+    input[type="email"], select {
         width: 100%;
     }
 
