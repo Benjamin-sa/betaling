@@ -7,7 +7,7 @@
 
 body {
     font-family: 'Roboto', sans-serif;
-    background-image: url('logo/IMG_7491.jpg');
+    background-image: url('logo/IMG_7491.webp');
     background-size: cover; /* Zorg ervoor dat de afbeelding de volledige achtergrond vult */
     background-position: center; /* Centraal uitlijnen van de afbeelding */
     background-repeat: no-repeat; /* Voorkom herhaling van de afbeelding */
@@ -163,6 +163,7 @@ input[type="text"], select {
     color: #333;
     font-size: 16px;
 }
+
 
 input[type="email"], select {
     width: 60%;

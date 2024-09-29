@@ -11,12 +11,13 @@ const mg = mailgun.client({
   url: 'https://api.eu.mailgun.net'
 });
 
-function sendConfirmationEmail(email, userName, shift, orderDetails) {
-  const icsFilePath = shift === "shift1"
-        ? path.join(__dirname, "ics_files", "shift1.ics")
-        : path.join(__dirname, "ics_files", "shift2.ics");
+async function sendConfirmationEmail(email, userName, shift, orderDetails) {
+  try {
+    const icsFilePath = shift === "shift1"
+      ? path.join(__dirname, "ics_files", "shift1.ics")
+      : path.join(__dirname, "ics_files", "shift2.ics");
 
-  const icsFile = fs.readFileSync(icsFilePath);
+    const icsFile = fs.readFileSync(icsFilePath);
 
   const data = {
     from: "BBQ LOD LAVKI <noreply@lodlavki.be>",
@@ -126,15 +127,17 @@ function sendConfirmationEmail(email, userName, shift, orderDetails) {
     }]
   };
 
-  mg.messages.create(process.env.MAILGUN_DOMAIN, data)
-    .then((body) => {
-      console.log("Confirmation email sent:", body);
-    })
-    .catch((error) => {
-      console.error("Error sending confirmation email:", error);
-    });
+  // Verstuur de e-mail en wacht op het resultaat
+  const body = await mg.messages.create(process.env.MAILGUN_DOMAIN, data);
+  console.log("Confirmation email sent:", body);
+
+} catch (error) {
+  console.error("Error sending confirmation email:", error);
+  error.type = "MailgunError"; // Stel het fouttype in
+  throw error; // Gooi de fout opnieuw zodat deze kan worden opgevangen door de aanroepende code
+}
 }
 
 module.exports = {
-  sendConfirmationEmail,
+sendConfirmationEmail,
 };

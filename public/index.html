@@ -7,6 +7,8 @@
     <title>LOD LAVKI Winterbarbecue</title>
     <link rel="stylesheet" href="style.css">
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap">
+    <link rel="preload" href="logo\IMG_7491.webp" as="image">
+    ²
 
 </head>
 
@@ -94,82 +96,135 @@
     <!-- Stripe.js bibliotheek -->
     <script src="https://js.stripe.com/v3/"></script>
     <script>
-        const stripe = Stripe('pk_live_51Q2YysK7LyHlGaLskm9jgeFHZ8r7ZeCHxNzEvEO1553OeCAcXzAYQIXGvWgggcp6aZQCV61IgF5gJqwTJY4YK6d1009Gq55TcX');
+        const stripe = Stripe('pk_test_51Q2YysK7LyHlGaLs1KaOcD1Gk6A8b8l45LVF3q9URgskNKwgFHBEIPRKtMXGZEu0kFn9Iq0yWGcJ0Aatm5XCMsiK00SWythWSu');
 
-        document.getElementById('checkout-button').addEventListener('click', function () {
+
+
+
+        // Functie om de modale popup te tonen
+        function showModal(message) {
+            const modal = document.getElementById('alert-modal');
+            const messageElement = document.getElementById('alert-message');
+            messageElement.textContent = message;
+            modal.classList.add('active');
+        }
+
+        // Sluit de modale popup wanneer de gebruiker op de sluitknop klikt
+        document.querySelector('.close-button').addEventListener('click', function () {
+            document.getElementById('alert-modal').classList.remove('active');
+        });
+
+        async function checkShiftCapacity(shift) {
+            try {
+                const response = await fetch('/check-shift-capacity', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ shift: shift }),
+                });
+
+                if (!response.ok) {
+                    throw new Error('Netwerkfout bij het ophalen van shiftcapaciteit.');
+                }
+                const data = await response.json();
+                return data.isFull;
+            } catch (error) {
+                console.error('Error checking shift capacity:', error);
+                return false; // Standaard naar niet vol als er een fout is
+            }
+        }
+
+        // Controleer shifts bij het laden van de pagina
+        document.addEventListener('DOMContentLoaded', async function () {
+            const shiftSelect = document.getElementById('shift');
+            const options = shiftSelect.options;
+
+            for (let i = 0; i < options.length; i++) {
+                const shiftValue = options[i].value;
+                const isFull = await checkShiftCapacity(shiftValue);
+                if (isFull) {
+                    options[i].textContent += ' (Vol)';
+                    options[i].disabled = true;
+                }
+            }
+
+            // Controleer of alle shifts vol zijn
+            const allShiftsFull = Array.from(options).every(option => option.disabled);
+            if (allShiftsFull) {
+                // Toon een bericht aan de gebruiker en schakel de bestelknop uit
+                showModal('Helaas zijn alle shifts volgeboekt. Er kunnen geen nieuwe bestellingen meer worden geplaatst.');
+                document.getElementById('checkout-button').disabled = true;
+            }
+        });
+
+        document.getElementById('checkout-button').addEventListener('click', async function () {
             // Haal de hoeveelheden voor elk menu op
             const bbqMenuSQuantity = parseInt(document.getElementById('bbq-menu-small').value);
             const bbqmenu1Quantity = parseInt(document.getElementById('bbq-menu1').value);
             const bbqmenu2Quantity = parseInt(document.getElementById('bbq-menu2').value);
             const vegamenuQuantity = parseInt(document.getElementById('vega-menu').value);
-            
+
             const shift = document.getElementById('shift').value;
-            const emailField = document.getElementById('email');  // Declareer de emailField hier
-
-
-            // Functie om de modale popup te tonen
-            function showModal(message) {
-                const modal = document.getElementById('alert-modal');
-                const messageElement = document.getElementById('alert-message');
-                messageElement.textContent = message;
-                document.getElementById('alert-modal').classList.add('active');
-            }
-            // Sluit de modale popup wanneer de gebruiker op de sluitknop klikt
-            document.querySelector('.close-button').addEventListener('click', function () {
-                document.getElementById('alert-modal').classList.remove('active');
-            });
+            const emailField = document.getElementById('email');
 
             // Valideer of de hoeveelheden positief zijn
             if (bbqMenuSQuantity < 0 || bbqmenu1Quantity < 0 || bbqmenu2Quantity < 0 || vegamenuQuantity < 0) {
                 showModal('Alle hoeveelheden moeten positief zijn.');
-                return; // Stop het proces als een negatieve waarde is ingevoerd
+                return;
             }
 
             // Controleer of de gebruiker ten minste één menu-item heeft geselecteerd
             if (bbqMenuSQuantity === 0 && bbqmenu1Quantity === 0 && bbqmenu2Quantity === 0 && vegamenuQuantity === 0) {
                 showModal('Je moet ten minste één menu-item selecteren.');
-                return; // Stop het proces als geen items zijn geselecteerd
+                return;
             }
 
             if (document.getElementById('name').value === '' || document.getElementById('email').value === '') {
                 showModal('Je moet je naam en email invullen.');
-                return; // Stop het proces als geen naam is ingevuld
+                return;
             }
 
             // Controleer of het e-mailadres correct is ingevoerd
             if (!emailField.checkValidity()) {
                 showModal('Vul een geldig e-mailadres in.');
-                return; // Stop het proces als het e-mailadres niet correct is
+                return;
             }
 
+            // Controleer nogmaals of de geselecteerde shift niet vol is
+            const isShiftFull = await checkShiftCapacity(shift);
+            if (isShiftFull) {
+                showModal('De geselecteerde shift is helaas vol. Kies een andere shift.');
+                return;
+            }
 
             // Bouw een lijst van line_items op basis van de hoeveelheden die groter zijn dan 0
             const lineItems = [];
 
             if (bbqMenuSQuantity > 0) {
                 lineItems.push({
-                    price: 'price_1Q2aC5K7LyHlGaLs2Qu0sRES',  // BBQ Menu price ID
+                    price: 'price_1Q2aC5K7LyHlGaLs2Qu0sRES',  // BBQ Menu Small price ID
                     quantity: bbqMenuSQuantity
                 });
             }
 
             if (bbqmenu1Quantity > 0) {
                 lineItems.push({
-                    price: 'price_1Q2aCcK7LyHlGaLshGypEczy',  // Vega Menu price ID
+                    price: 'price_1Q2aCcK7LyHlGaLshGypEczy', // BBQ Menu 1 price ID
                     quantity: bbqmenu1Quantity
                 });
             }
 
             if (bbqmenu2Quantity > 0) {
                 lineItems.push({
-                    price: 'price_1Q2aD8K7LyHlGaLse9obYnTR',  // Vis Menu price ID
+                    price: 'price_1Q2aD8K7LyHlGaLse9obYnTR', // BBQ Menu 2 price ID
                     quantity: bbqmenu2Quantity
                 });
             }
 
             if (vegamenuQuantity > 0) {
                 lineItems.push({
-                    price: 'price_1Q2aE1K7LyHlGaLs9iyje2d8',  // Kip Menu price ID
+                    price: 'price_1Q2aE1K7LyHlGaLs9iyje2d8', // Vega Menu price ID
                     quantity: vegamenuQuantity
                 });
             }
@@ -198,9 +253,12 @@
                 })
                 .catch(error => {
                     console.error('Error creating checkout session:', error);
+                    showModal('Er is een fout opgetreden bij het maken van de checkout-sessie. Probeer het later opnieuw.');
                 });
-
         });
+
+
+
     </script>
 </body>
 
