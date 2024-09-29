@@ -3,7 +3,7 @@ const express = require("express");
 const sslRedirect = require("express-sslify");
 const NodeCache = require("node-cache");
 const cache = new NodeCache({ stdTTL: 300 }); // Cache expiry time of 5 minutes (300 seconds)
-const stripe = require("stripe")(process.env.STRIPE_TEST_SECRET_KEY);
+const stripe = require("stripe")(process.env.STRIPE_SECRET_KEY);
 const fs = require("fs");
 const path = require("path");
 
@@ -30,7 +30,7 @@ admin.initializeApp({
 
 const db = admin.firestore();
 
-// app.use(sslRedirect.HTTPS({ trustProtoHeader: true })); // Redirect HTTP naar HTTPS
+app.use(sslRedirect.HTTPS({ trustProtoHeader: true })); // Redirect HTTP naar HTTPS
 app.use(express.json());
 app.use(express.static("public"));
 
