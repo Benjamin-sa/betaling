@@ -63,6 +63,7 @@ async function getShiftCount(shift) {
     }
     // opslaan in cache
     cache.set(shift, count);
+    console.log(`Shift count for ${shift} is ${count}`);
     return count;
 
   } catch (error) {
