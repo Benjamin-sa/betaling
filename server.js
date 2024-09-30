@@ -30,7 +30,7 @@ admin.initializeApp({
 
 const db = admin.firestore();
 
-// app.use(sslRedirect.HTTPS({ trustProtoHeader: true })); // Redirect HTTP naar HTTPS
+app.use(sslRedirect.HTTPS({ trustProtoHeader: true })); // Redirect HTTP naar HTTPS
 app.use(express.json());
 app.use(express.static("public"));
 
