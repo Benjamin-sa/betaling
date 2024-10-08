@@ -94,7 +94,7 @@ async function updateShiftCapacity(shift, increment) {
 
     const newCount = currentCount + increment;
     transaction.update(shiftRef, { count: newCount });
-
+    console.log(`Shift count updated to ${newCount}`);
     // Update cache with new count
     cache.set(shift, newCount);
   });
@@ -196,12 +196,20 @@ app.get("/success", async (req, res, next) => {
       // Haal de Stripe sessie op
       const session = await stripe.checkout.sessions.retrieve(sessionId);
       const lineItems = await stripe.checkout.sessions.listLineItems(sessionId);
+
+      // Haal het e-mailadres van de klant op
+      let customerEmail = session.customer_email;
+      if (!customerEmail && session.customer) {
+        const customer = await stripe.customers.retrieve(session.customer);
+        customerEmail = customer.email;
+      }
   
       // Als de betaling succesvol is
       if (session.payment_status === "paid") {
         const order = {
           name: session.metadata.userName,
           shift: session.metadata.shift,
+          mail : customerEmail,
           created_at: new Date().toISOString(),
           items: lineItems.data.map((item) => ({
             name: item.description,
@@ -218,12 +226,6 @@ app.get("/success", async (req, res, next) => {
         const shift = session.metadata.shift;
         const userName = session.metadata.userName;
   
-        // Haal het e-mailadres van de klant op
-        let customerEmail = session.customer_email;
-        if (!customerEmail && session.customer) {
-          const customer = await stripe.customers.retrieve(session.customer);
-          customerEmail = customer.email;
-        }
   
         // Verstuur de bevestigingsmail via Mailgun
         await mailgun.sendConfirmationEmail(
