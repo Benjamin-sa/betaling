@@ -29,8 +29,89 @@ admin.initializeApp({
 });
 
 const db = admin.firestore();
-
+if (process.env.NODE_ENV === "production") {
 app.use(sslRedirect.HTTPS({ trustProtoHeader: true })); // Redirect HTTP naar HTTPS
+}
+
+//////////////////////////BESTELLING AFHANDELING//////////////////////////
+  
+app.post('/webhook', express.raw({ type: 'application/json' }), async (req, res) => {
+  const sig = req.headers['stripe-signature'];
+  const endpointSecret = process.env.STRIPE_WEBHOOK_SECRET;
+  let event;
+
+  try {
+    // Verifieer de webhook handtekening en verkrijg het evenement
+    event = stripe.webhooks.constructEvent(req.body, sig, endpointSecret);
+  } catch (err) {
+    console.error('⚠️  Webhook fout:', err.message);
+    return res.status(400).send(`Webhook Error: ${err.message}`);
+  }
+
+  if (event.type === 'checkout.session.completed' || event.type === 'checkout.session.async_payment_succeeded') {
+    const session = event.data.object;
+    const sessionId = session.id;
+  
+    try {
+      // Haal de line items op
+      const lineItems = await stripe.checkout.sessions.listLineItems(sessionId);
+  
+      // Haal het e-mailadres van de klant op
+      let customerEmail = session.customer_email;
+      if (!customerEmail && session.customer) {
+        const customer = await stripe.customers.retrieve(session.customer);
+        customerEmail = customer.email;
+      }
+  
+      // Controleer of de betaling succesvol is
+      if (session.payment_status === "paid") {
+        const order = {
+          name: session.metadata.userName,
+          shift: session.metadata.shift,
+          mail: customerEmail,
+          created_at: new Date().toISOString(),
+          items: lineItems.data.map((item) => ({
+            name: item.description,
+            quantity: item.quantity,
+          })),
+        };
+  
+        const totalMenus = lineItems.data.reduce(
+          (sum, item) => sum + item.quantity,
+          0
+        );
+        await updateShiftCapacity(session.metadata.shift, totalMenus);
+  
+        const shift = session.metadata.shift;
+        const userName = session.metadata.userName;
+  
+        // Verstuur de bevestigingsmail via Mailgun
+        await mailgun.sendConfirmationEmail(
+          customerEmail,
+          userName,
+          shift,
+          order.items
+        );
+        console.log("Bevestigingsmail succesvol verzonden.");
+  
+        // Voeg de bestelling toe aan de Firestore-database
+        await db.collection("orders").add(order);
+        console.log("Document succesvol opgeslagen in Firestore.");
+      } else {
+        console.log("Betaling niet succesvol");
+      }
+    } catch (error) {
+      console.error("Error processing webhook:", error);
+    }
+  }
+  
+  // Bevestig ontvangst van het evenement
+  res.json({ received: true });
+});
+
+//////////////////////////EINDE BESTELLING AFHANDELING//////////////////////////
+
+
 app.use(express.json());
 app.use(express.static("public"));
 
@@ -185,77 +266,16 @@ app.post("/create-checkout-session", async (req, res, next) => {
   }
 });
 
-//////////////////////////EINDE STRIPE CHECKOUT//////////////////////////
-
-//////////////////////////BESTELLING AFHANDELING//////////////////////////
 // Route voor succesvol afgeronde bestelling
 app.get("/success", async (req, res, next) => {
-    const sessionId = req.query.session_id;
-  
-    try {
-      // Haal de Stripe sessie op
-      const session = await stripe.checkout.sessions.retrieve(sessionId);
-      const lineItems = await stripe.checkout.sessions.listLineItems(sessionId);
+  res.sendFile(path.join(__dirname, "public", "success.html"));
+});
 
-      // Haal het e-mailadres van de klant op
-      let customerEmail = session.customer_email;
-      if (!customerEmail && session.customer) {
-        const customer = await stripe.customers.retrieve(session.customer);
-        customerEmail = customer.email;
-      }
-  
-      // Als de betaling succesvol is
-      if (session.payment_status === "paid") {
-        const order = {
-          name: session.metadata.userName,
-          shift: session.metadata.shift,
-          mail : customerEmail,
-          created_at: new Date().toISOString(),
-          items: lineItems.data.map((item) => ({
-            name: item.description,
-            quantity: item.quantity,
-          })),
-        };
-  
-        const totalMenus = lineItems.data.reduce(
-          (sum, item) => sum + item.quantity,
-          0
-        );
-        await updateShiftCapacity(session.metadata.shift, totalMenus);
-  
-        const shift = session.metadata.shift;
-        const userName = session.metadata.userName;
-  
-  
-        // Verstuur de bevestigingsmail via Mailgun
-        await mailgun.sendConfirmationEmail(
-          customerEmail,
-          userName,
-          shift,
-          order.items
-        );
-        console.log("Bevestigingsmail succesvol verzonden.");
-  
-        // Voeg de bestelling toe aan de Firestore-database
-        await db.collection("orders").add(order);
-        console.log("Document succesvol opgeslagen in Firestore.");
-  
-        // Toon de success-pagina
-        res.sendFile(path.join(__dirname, "public", "success.html"));
-      } else {
-        res.status(400).send("Betaling niet succesvol");
-      }
-    } catch (error) {
-      console.error("Error processing success route:", error);
-      if (!error.type) {
-        error.type = "UnknownError";
-      }
-      next(error); // Stuur de fout door naar de foutafhandelingsmiddleware
-    }
-  });
-  
+//////////////////////////EINDE STRIPE CHECKOUT//////////////////////////
+
   
 //////////////////////////EINDE BESTELLING AFHANDELING//////////////////////////
+
 
 //////////////////////////FOUTAFHANDELING//////////////////////////
 
