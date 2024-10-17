@@ -180,7 +180,22 @@
             const vegamenuQuantity = parseInt(document.getElementById('vega-menu').value);
 
             const shift = document.getElementById('shift').value;
+
             const emailField = document.getElementById('email');
+            const email = emailField.value;
+
+            // Controleer of het e-mailadres correct is ingevoerd
+            if (!emailField.checkValidity()) {
+                showModal('Vul een geldig e-mailadres in.');
+                return;
+            }
+
+            // Controleer of het e-mailadres eindigt op @icloud of @telenet
+            if (email.endsWith('@icloud.com') || email.endsWith('@telenet.be')) {
+                // Toon de modal als het e-mailadres voldoet aan de voorwaarden
+                showModal('Het lijkt erop dat je een @icloud of @telenet e-mailadres gebruikt. Helaas ondersteunen wij dit momenteel niet.');
+                return;  // Stop verdere verwerking tot de gebruiker bevestigt
+            }
 
             // Valideer of de hoeveelheden positief zijn
             if (bbqMenuSQuantity < 0 || bbqmenu1Quantity < 0 || bbqmenu2Quantity < 0 || vegamenuQuantity < 0) {
@@ -196,12 +211,6 @@
 
             if (document.getElementById('name').value === '' || document.getElementById('email').value === '') {
                 showModal('Je moet je naam en email invullen.');
-                return;
-            }
-
-            // Controleer of het e-mailadres correct is ingevoerd
-            if (!emailField.checkValidity()) {
-                showModal('Vul een geldig e-mailadres in.');
                 return;
             }
 
@@ -242,6 +251,7 @@
                     quantity: vegamenuQuantity
                 });
             }
+
 
             // Maak een Checkout-sessie aan via de backend
             fetch('/create-checkout-session', {
