@@ -1,7 +1,7 @@
 {
   "name": "lodlavki",
   "version": "1.0.0",
-  "description": "Een beschrijving van je app",
+  "description": "een betalingssysteem",
   "main": "server.js",
   "scripts": {
     "start": "node server.js"
@@ -14,6 +14,7 @@
     "firebase": "^10.13.2",
     "firebase-admin": "^12.5.0",
     "fs": "^0.0.1-security",
+    "json2csv": "^6.0.0-alpha.2",
     "lodlavki": "file:",
     "mailgun": "^0.5.0",
     "mailgun.js": "^10.2.3",
